@@ -1204,7 +1204,7 @@ defmodule Schematic do
   """
   @spec raw((any() -> boolean()) | (any(), :up | :down -> boolean()), [tuple()]) :: t()
   def raw(function, opts \\ []) do
-    message = fn -> Keyword.get(opts, :message, "is invalid") end
+    message = Keyword.get(opts, :message, fn -> "is invalid" end)
     transformer = Keyword.get(opts, :transform, fn input, _dir -> input end)
 
     %Schematic{
@@ -1218,7 +1218,7 @@ defmodule Schematic do
           if convert_to_two_arity(function).(input, dir) do
             {:ok, convert_to_two_arity(transformer).(input, dir)}
           else
-            {:error, message.()}
+            {:error, (if is_function(message), do: message.(), else: message)}
           end
         end)
     }
@@ -1248,7 +1248,7 @@ defmodule Schematic do
   """
   @spec all([t()]) :: t()
   def all(schematics) when is_list(schematics) do
-    message = fn -> Enum.map(schematics, & &1.message) end
+    message = fn -> Enum.map(schematics, &Schematic.Unification.message/1) end
 
     %Schematic{
       kind: "all",

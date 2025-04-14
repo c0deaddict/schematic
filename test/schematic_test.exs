@@ -514,6 +514,13 @@ defmodule SchematicTest do
       assert {:error, %{type: "is missing"}} == unify(schematic, %{name: "bob"})
     end
 
+    test "nullable with raw" do
+      schematic = nullable(raw(fn i -> i < 0 end, message: fn -> "must be <0" end))
+      assert {:ok, nil} = unify(schematic, nil)
+      assert {:ok, -1} = unify(schematic, -1)
+      assert {:error, "expected either null or must be <0"} = unify(schematic, 0)
+    end
+
     test "optional keys" do
       schematic =
         map(%{
