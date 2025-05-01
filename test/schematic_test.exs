@@ -926,5 +926,30 @@ defmodule SchematicTest do
              |> Code.format_string!()
              |> IO.iodata_to_binary() == Inspect.Schematic.inspect(schematic, [])
     end
+
+    test "schema" do
+      schematic =
+        schema(S1, %{
+          foo: int(),
+          bar: int()
+        })
+
+      assert """
+             schema(#{S1}, %{
+               :foo => int(),
+               :bar => int()
+             })
+             """ == inspect(schematic) <> "\n"
+    end
+
+    test "schema with field transformation" do
+      schematic = schema(S1, %{{:foo, "FOO"} => int()})
+
+      assert """
+             schema(#{S1}, %{
+               {:foo, "FOO"} => int()
+             })
+             """ == inspect(schematic) <> "\n"
+    end
   end
 end

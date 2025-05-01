@@ -1130,7 +1130,7 @@ defmodule Schematic do
       kind: "#{mod}",
       message: fn -> "a %#{String.replace(inspect(mod), "Elixir.", "")}{}" end,
       inspect: fn _, _ ->
-        "schema(#{mod}, #{Enum.map_join(blueprint, ",\n", fn k, v -> "#{to_string(k)}: #{inspect(v)}" end)})"
+        "schema(#{mod}, %{\n  #{Enum.map_join(blueprint, ",\n", fn {k, v} -> "  #{inspect(k)} => #{inspect(v)}" end)}\n})"
       end,
       unify:
         telemetry_wrap(:schema, %{mod: mod}, fn input, dir ->
@@ -1218,7 +1218,7 @@ defmodule Schematic do
           if convert_to_two_arity(function).(input, dir) do
             {:ok, convert_to_two_arity(transformer).(input, dir)}
           else
-            {:error, (if is_function(message), do: message.(), else: message)}
+            {:error, if(is_function(message), do: message.(), else: message)}
           end
         end)
     }
